@@ -46,12 +46,12 @@ class SenderoRural inherits Sendero {
 
 class Habitante {
 	var property lugar
+	const property velocidad
+	const property velocidadACampoAbierto = velocidad
 	var dedicacion
 	var horasTrabajadas = 0
 	var tareasRealizadas = 0
 
-	method velocidad()
-	method velocidadACampoAbierto() = self.velocidad()
 	method tieneTiempoParaHacerla(duracionDeLaTarea) =
 		duracionDeLaTarea < self.horasRestantes()
 	method aumentarHorasTrabajadas(duracion) {
@@ -86,22 +86,11 @@ const casaDeJim = new Lugar()
 const casaDeAja = new Lugar()
 const casaDeClara = new Lugar()
 
-object jim inherits Habitante(lugar = casaDeJim, dedicacion = 7) {
-	override method velocidad() = 90
-	override method velocidadACampoAbierto() = 9
-}
+const jim = new Habitante(lugar = casaDeJim, dedicacion = 7, velocidad = 90, velocidadACampoAbierto = 9)
 
-object clara inherits Habitante(lugar = casaDeClara, dedicacion = 7) {
-	override method velocidad() = 10
-}
+const clara = new Habitante(lugar = casaDeClara, dedicacion = 7, velocidad = 10)
 
-object aja inherits Habitante(lugar = casaDeAja, dedicacion = 5) {
-	override method velocidad() = 12
-}
-
-object pendiente {}
-object completada {}
-object fallida {}
+const aja = new Habitante(lugar = casaDeAja, dedicacion = 5, velocidad = 12)
 
 class Tarea {
 	
