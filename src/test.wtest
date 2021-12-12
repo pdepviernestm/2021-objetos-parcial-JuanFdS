@@ -1,0 +1,88 @@
+import parcial.*
+
+test "un lugar conecta con otro si tiene un sendero que lleve hacia alla" {
+	const casaJim = new Lugar(senderos = [])
+	const senderoDeMuseoALoDeJim = new SenderoRural(destino = casaJim, longitud = 40)
+	const museo = new Lugar(senderos=[senderoDeMuseoALoDeJim])
+	
+	assert.that(museo.conectaCon(casaJim))
+}
+
+test "un lugar no conecta con otro si no tiene un sendero que lleve hacia alla" {
+	const casaJim = new Lugar(senderos = [])
+	const mercadoTroll = new Lugar(senderos=[])
+	
+	assert.notThat(mercadoTroll.conectaCon(casaJim))
+}
+
+test "si un lugar no conecta con otro, pedirle el tiempo que tardaria una persona en llegar hasta alla falla" {
+	const casaJim = new Lugar(senderos = [])
+	const mercadoTroll = new Lugar(senderos=[])
+	
+	assert.throwsExceptionWithType(new DomainException(), { mercadoTroll.cuantoTardariaEnLlegarA(casaJim, aja) })
+}
+
+test "el tiempo que tarda un habitante en llegar a un lugar por un sendero rural es la distancia dividido la velocidad a campo abierto del habitante" {
+	const casaJim = new Lugar(senderos = [])
+	const senderoDeMuseoALoDeJim = new SenderoRural(destino = casaJim, longitud = 40)
+	const museo = new Lugar(senderos=[senderoDeMuseoALoDeJim])
+	
+	assert.equals(4, museo.cuantoTardariaEnLlegarA(casaJim, clara))
+}
+
+test "el tiempo que tarda un habitante en llegar a un lugar por un sendero urbano es la distancia divivido la velocidad en ciudad del habitante por el trafico del camino" {
+	const mercadoTroll = new Lugar(senderos = [])
+	const senderoDeLoDeClaraAMercadoTroll = new SenderoUrbano(destino = mercadoTroll, longitud = 15, indiceDeTrafico = 4)
+	const casaClara = new Lugar(senderos=[senderoDeLoDeClaraAMercadoTroll])
+	
+	assert.equals(6, casaClara.cuantoTardariaEnLlegarA(mercadoTroll, clara))
+}
+
+test "para habitantes con distintas velocidades en ciudad y a campo abierto, el tiempo en recorrer senderos urbanos y rurales es distinto" {
+	const destino = new Lugar(senderos = [])
+	const senderoRural = new SenderoRural(destino=destino, longitud = 90)
+	const senderoUrbano = new SenderoUrbano(destino=destino, longitud = 90, indiceDeTrafico = 1)
+	const origenConSenderoRural = new Lugar(senderos = [senderoRural])
+	const origenConSenderoUrbano = new Lugar(senderos = [senderoUrbano])
+	
+	assert.equals(10, origenConSenderoRural.cuantoTardariaEnLlegarA(destino, jim))
+	assert.equals(1, origenConSenderoUrbano.cuantoTardariaEnLlegarA(destino, jim))
+}
+
+test "el lugar mas cercano para un habitante es aquel al que le tome menos tiempo llegar" {
+	const casaClara = new Lugar(senderos = [])
+	const mercadoTroll = new Lugar(senderos = [])
+	const senderoDeLoDeJimALoDeClara = new SenderoUrbano(destino=casaClara, longitud=5, indiceDeTrafico=1)
+	const senderoDeLoDeJimAMercadoTroll = new SenderoRural(destino=mercadoTroll, longitud=35)
+	const casaJim = new Lugar(senderos=[senderoDeLoDeJimALoDeClara, senderoDeLoDeJimAMercadoTroll])
+	
+	assert.equals(casaClara, casaJim.destinoMasCercanoDe(clara))
+}
+
+test "intentar hacer una tarea para la cual no se cumple el requisito implica que la tarea fallo y entonces no se cuenta como una tarea realizada" {
+	const casaClara = new Lugar(senderos = [])
+	const museo = new Lugar(senderos = [])
+	const moverseAMuseo = new MoverseAUnDestino(destino=museo)
+	clara.lugar(casaClara)
+	
+	moverseAMuseo.serRealizadaPor(clara)
+	
+	assert.equals(casaClara, clara.lugar())
+	assert.equals(0, clara.cantidadDeTareasCompletas())
+	assert.equals(7, clara.horasRestantes())
+}
+
+test "intentar hacer una tarea para la cual no tiene suficiente tiempo falla y entonces no cuenta como una tarea realizada" {
+	const mercadoTroll = new Lugar(senderos = [])
+	const senderoDeLoDeClaraAMercadoTroll = new SenderoUrbano(destino = mercadoTroll, longitud = 15, indiceDeTrafico = 4)
+	const casaClara = new Lugar(senderos=[senderoDeLoDeClaraAMercadoTroll])
+	const moverseAMercadoTroll = new MoverseAUnDestino(destino=mercadoTroll)
+	clara.lugar(casaClara)
+	
+	clara.aumentarHorasTrabajadas(7)
+	moverseAMercadoTroll.serRealizadaPor(clara)
+	
+	assert.equals(casaClara, clara.lugar())
+	assert.equals(0, clara.cantidadDeTareasCompletas())
+}
+
